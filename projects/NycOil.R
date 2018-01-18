@@ -38,13 +38,12 @@ oil2 = oil %>%
 #5. 
 
 #messing with plotting spatial data
-oil_map = ggplot() + geom_point(data = oil, aes(x = Longitude, y = Latitude, color = 'red')) + theme(panel.grid.major = element_line(linetype = "blank"), 
-    panel.grid.minor = element_line(linetype = "blank"))
-counties = readOGR("nycbb.shp", layer = "nycbb")
 
+counties = readOGR("nycbb.shp", layer = "nycbb")
 
 nyc_base = ggplot() + geom_polygon(data = counties, aes(x=long, y=lat, group = group)) 
 + theme(panel.background = element_rect(fill = NA))
+
 
 combined_map = ggplot() + 
   geom_polygon(data = counties, aes(x=long, y=lat, group = group)) +

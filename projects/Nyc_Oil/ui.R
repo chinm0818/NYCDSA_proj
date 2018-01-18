@@ -1,5 +1,5 @@
 #
-# This is the user-interface definition of a Shiny web application. You can
+# Shiny app for NYC_oil project
 # run the application by clicking 'Run App' above.
 #
 # Find out more about building applications with Shiny here:
@@ -13,21 +13,18 @@ library(shiny)
 shinyUI(fluidPage(
   
   # Application title
-  titlePanel("Old Faithful Geyser Data"),
-  
-  # Sidebar with a slider input for number of bins 
-  sidebarLayout(
-    sidebarPanel(
-       sliderInput("bins",
-                   "Number of bins:",
-                   min = 1,
-                   max = 50,
-                   value = 30)
-    ),
-    
-    # Show a plot of the generated distribution
-    mainPanel(
-       plotOutput("distPlot")
-    )
+ navbarPage(
+   title = 'Oil Boiler Retirement',
+   tabPanel('Map', 
+       plotOutput("NYC_map", width = '100%'),
+       sliderInput("year",
+                   "Scheduled Retirement Year:",
+                   min = 2018,
+                   max = 2030,
+                   value = c(2018, 2020)),
+       selectInput("gas", "Gas Provider",
+                   choices = c("All", "Con Edison", "National Grid"))),
+   tabPanel('Analysis', plotOutput("count_data"))
   )
-))
+)
+)

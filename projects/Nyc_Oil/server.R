@@ -10,6 +10,7 @@
 library(shiny)
 library(dplyr)
 library(ggplot2)
+library(rgdal)
 
 
 # Establishing data points and map spatial data

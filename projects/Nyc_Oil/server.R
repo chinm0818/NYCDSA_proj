@@ -36,7 +36,7 @@ shinyServer(function(input, output) {
   filtered_oil2 = reactive({ 
     oil2 %>%
       filter(., Retirement >= input$year[1] & Retirement <= input$year[2]) %>%
-      filter(., Natural.Gas.Utility..Con.Edison.or.National.Grid == gas_select())
+      filter(., Natural.Gas.Utility..Con.Edison.or.National.Grid %in% gas_select())
     
   })
   

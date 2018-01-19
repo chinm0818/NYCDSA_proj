@@ -11,7 +11,7 @@ library(shiny)
 library(dplyr)
 library(ggplot2)
 library(rgdal)
-
+library(googleVis)
 
 # Establishing data points and map spatial data
 
@@ -39,8 +39,13 @@ shinyServer(function(input, output) {
       filter(., Natural.Gas.Utility..Con.Edison.or.National.Grid == gas_select())
     
   })
+    
+    
+    
+ #df for googlevis 
   
-   
+  
+  
   output$NYC_map <- renderPlot({
  #don't forget that reactive is a func. so it will need '()' when referring to it   
     combined_map2 = ggplot() + 
@@ -56,7 +61,15 @@ shinyServer(function(input, output) {
     
   })
   output$count_data = renderPlot({
-    ggplot(data = filtered_oil2(), aes(x = Borough)) + geom_bar(aes(fill = Building.Type))
+    #ggplot(data = filtered_oil2(), aes(x = Borough)) + geom_bar(aes(fill = Building.Type))
+    
+    borough = filtered_oil2()%>%
+      group_by(., Borough) %>%
+      summarize(., cnt = n()) %>%
+      as.data.frame
+    
+    column = gvisColumnChart(borough)
+    plot(column)
   })
   
 })

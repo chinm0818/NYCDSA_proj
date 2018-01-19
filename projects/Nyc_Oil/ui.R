@@ -7,24 +7,25 @@
 #    http://shiny.rstudio.com/
 #
 
-library(shiny)
+library(shinydashboard)
 
-# Define UI for application that draws a histogram
-shinyUI(fluidPage(
-  
-  # Application title
- navbarPage(
-   title = 'Oil Boiler Retirement',
-   tabPanel('Map', 
-       plotOutput("NYC_map", width = '100%'),
-       sliderInput("year",
-                   "Scheduled Retirement Year:",
-                   min = 2018,
-                   max = 2030,
-                   value = c(2018, 2020)),
-       selectInput("gas", "Gas Provider",
-                   choices = c("All", "Con Edison", "National Grid"))),
-   tabPanel('Analysis', plotOutput("count_data"))
+shinyUI(dashboardPage(
+  dashboardHeader(title = "My Dashboard"),
+  dashboardSidebar(
+    sidebarUserPanel("Your Name"),
+    sidebarMenu(
+      menuItem("Map", tabName = "map", icon = icon("map")),
+      menuItem("Data", tabName = "data", icon = icon("database"))),
+    selectizeInput("selected",
+                   "Select Item to Display",
+                   choice = c('All',
+                   'Con Edison', 'National Grid'))
+  ),
+  dashboardBody(
+    tabItems(
+      tabItem(tabName = "map",
+              "to be replaced with map and histogram"),
+      tabItem(tabName = "data",
+              "to be replaced with datatable"))
   )
-)
-)
+))

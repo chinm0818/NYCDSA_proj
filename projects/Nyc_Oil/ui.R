@@ -29,18 +29,13 @@ shinyUI(dashboardPage(
                 max = 2030,
                 value = c(2018, 2020)
                 )
-  ),
+    ),
   dashboardBody(
     tabItems(
       tabItem(tabName = "map",
-              fluidRow(
-                box(plotOutput("map", width = "800px", height = "800px")),
-                box(htmlOutput("count_data")),
-                box(htmlOutput("Btype"))
-              )
-      )
-    
-              )
-      )
+              fluidRow(leafletOutput('map'))),
+      tabItem(tabName = "data",
+              "to be replaced with datatable"))
+  )
   )
   )

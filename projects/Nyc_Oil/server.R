@@ -45,20 +45,16 @@ shinyServer(function(input, output) {
            "Staten Island" = 5)
   })
   
- map_select = reactive({
-   switch(input$boro,
-          "All" = c(0:4),
-          "Manhattan" = 1,
-          "Bronx" = 4,
-          "Brooklyn" = 2,
-          "Queens" = 3,
-          "Staten Island" = 0)
- })
- 
- map = reactive({
-   b.points %>%
-     filter(., id %in% map_select())
- })
+  map_select = reactive({
+    switch(input$boro,
+           "All" = c(1, 2, 3, 4, 5),
+           "Manhattan" = 2,
+           "Bronx" = 5,
+           "Brooklyn" = 3,
+           "Queens" = 4,
+           "Staten Island" = 1)
+  }) 
+
 
     
   filtered_oil2 = reactive({ 
@@ -74,19 +70,11 @@ shinyServer(function(input, output) {
   
   
   
-  output$map <- renderPlot({
- #don't forget that reactive is a func. so it will need '()' when referring to it   
-    combined_map2 = ggplot() + 
-      geom_polygon(data = map(), aes(x=long, y=lat, group = group)) +
-      geom_point(data = filtered_oil2(), aes(x = Longitude, y = Latitude, color = 'red')) + 
-      theme(axis.title.x = element_blank(),
-            axis.text.x=element_blank(),
-            axis.ticks = element_blank(),
-            axis.title.y = element_blank(),
-            axis.text.y=element_blank(),
-            legend.position = 'none'
-      )  
-  combined_map2
+  output$map <- renderLeaflet({
+    
+    leaflet(counties[map_select(),]) %>%
+      addTiles() %>%
+      addPolygons()
     
   })
   output$count_data = renderGvis({

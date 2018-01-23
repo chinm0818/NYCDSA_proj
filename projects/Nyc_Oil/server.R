@@ -18,6 +18,7 @@ library(googleVis)
 counties = readOGR("nycbb.shp", layer = "nycbb") #nyc boroughs map
 oil2 = read.csv('clean_oil.csv') #load in data
 # nyc_base = ggplot() + geom_polygon(data = counties, aes(x=long, y=lat, group = group)) 
+b.points = fortify(counties)
 
 
 
@@ -25,42 +26,70 @@ shinyServer(function(input, output) {
   
 #let's try to set up our reactive elements:
   
+  
   gas_select = reactive({
     switch (input$gas,
-      "Con Edison" = "Con Edison",
-      "National Grid" = "National Grid",
-      "All" = c("Con Edison", "National Grid")
+            "Con Edison" = "Con Edison",
+            "National Grid" = "National Grid",
+            "All" = c("Con Edison", "National Grid")
     )
   })
   
+  boro_select = reactive({
+    switch(input$boro,
+           "All" = c(1, 2, 3, 4, 5),
+           "Manhattan" = 1,
+           "Bronx" = 2,
+           "Brooklyn" = 3,
+           "Queens" = 4,
+           "Staten Island" = 5)
+  })
+  
+ map_select = reactive({
+   switch(input$boro,
+          "All" = c(0:4),
+          "Manhattan" = 1,
+          "Bronx" = 4,
+          "Brooklyn" = 2,
+          "Queens" = 3,
+          "Staten Island" = 0)
+ })
+ 
+ map = reactive({
+   b.points %>%
+     filter(., id %in% map_select())
+ })
+
+    
   filtered_oil2 = reactive({ 
     oil2 %>%
+      filter(., Borough %in% boro_select()) %>%
       filter(., Retirement >= input$year[1] & Retirement <= input$year[2]) %>%
-      filter(., Natural.Gas.Utility..Con.Edison.or.National.Grid == gas_select())
+      filter(., Natural.Gas.Utility..Con.Edison.or.National.Grid %in% gas_select())
     
   })
-    
     
     
  #df for googlevis 
   
   
   
-  output$NYC_map <- renderPlot({
+  output$map <- renderPlot({
  #don't forget that reactive is a func. so it will need '()' when referring to it   
     combined_map2 = ggplot() + 
-      geom_polygon(data = counties, aes(x=long, y=lat, group = group)) +
-      geom_point(data = filtered_oil2(), aes(x = Longitude, y = Latitude, color = Building.Type)) + 
+      geom_polygon(data = map(), aes(x=long, y=lat, group = group)) +
+      geom_point(data = filtered_oil2(), aes(x = Longitude, y = Latitude, color = 'red')) + 
       theme(axis.title.x = element_blank(),
             axis.text.x=element_blank(),
             axis.ticks = element_blank(),
             axis.title.y = element_blank(),
-            axis.text.y=element_blank()
+            axis.text.y=element_blank(),
+            legend.position = 'none'
       )  
   combined_map2
     
   })
-  output$count_data = renderPlot({
+  output$count_data = renderGvis({
     #ggplot(data = filtered_oil2(), aes(x = Borough)) + geom_bar(aes(fill = Building.Type))
     
     borough = filtered_oil2()%>%
@@ -68,8 +97,16 @@ shinyServer(function(input, output) {
       summarize(., cnt = n()) %>%
       as.data.frame
     
-    column = gvisColumnChart(borough)
-    plot(column)
+    gvisColumnChart(borough, options = list(width = 400, height=300))
+    
+  })
+  output$Btype = renderGvis({
+    
+    buildingT = filtered_oil2()%>%
+      group_by(., Building.Type)%>%
+      summarise(., BuildingType = n())
+    
+    gvisPieChart(buildingT)
   })
   
 })

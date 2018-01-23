@@ -16,16 +16,31 @@ shinyUI(dashboardPage(
     sidebarMenu(
       menuItem("Map", tabName = "map", icon = icon("map")),
       menuItem("Data", tabName = "data", icon = icon("database"))),
-    selectizeInput("selected",
-                   "Select Item to Display",
+    selectizeInput("gas",
+                   "Gas Provider",
                    choice = c('All',
-                   'Con Edison', 'National Grid'))
+                   'Con Edison', 'National Grid')),
+    selectizeInput("boro",
+                   "Select Borough",
+                   choice = c('All','Bronx', 'Brooklyn', 'Manhattan', 'Queens', 'Staten Island')),
+    sliderInput("year",
+                label = h3('Year Range'),
+                min = 2018,
+                max = 2030,
+                value = c(2018, 2020)
+                )
   ),
   dashboardBody(
     tabItems(
       tabItem(tabName = "map",
-              "to be replaced with map and histogram"),
-      tabItem(tabName = "data",
-              "to be replaced with datatable"))
+              fluidRow(
+                box(plotOutput("map", width = "800px", height = "800px")),
+                box(htmlOutput("count_data")),
+                box(htmlOutput("Btype"))
+              )
+      )
+    
+              )
+      )
   )
-))
+  )

@@ -12,13 +12,13 @@ library(dplyr)
 library(ggplot2)
 library(rgdal)
 library(googleVis)
+library(leaflet)
 
 # Establishing data points and map spatial data
 
 counties = readOGR("nycbb.shp", layer = "nycbb") #nyc boroughs map
 oil2 = read.csv('clean_oil.csv') #load in data
 # nyc_base = ggplot() + geom_polygon(data = counties, aes(x=long, y=lat, group = group)) 
-b.points = fortify(counties)
 
 
 
@@ -64,19 +64,36 @@ shinyServer(function(input, output) {
       filter(., Natural.Gas.Utility..Con.Edison.or.National.Grid %in% gas_select())
     
   })
+  
+ 
+  
+  
     
     
  #df for googlevis 
   
   
-  
+ # leaflet map with geo and data layers 
   output$map <- renderLeaflet({
     
-    leaflet(counties[map_select(),]) %>%
-      addTiles() %>%
-      addPolygons()
+    leaflet(oil2) %>%
+      addTiles(urlTemplate = 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_nolabels/{z}/{x}/{y}.png') %>%
+      addCircles(color = 'red')%>%
+      addPolygons(data = counties)
+    #%>%#borough shape data from NYC open data
+      #setView(lat = 40.69, lng = -73.8, zoom = 11) don't know it turns off auto zoom
     
   })
+  
+  # putting in leaflet proxy to control map (faster?)
+  
+  observe({
+    leafletProxy('map', data = filtered_oil2()) %>%
+      clearShapes() %>%
+      addCircles(color = 'red') %>%
+      addPolygons(data = counties[map_select(),])
+  })
+  
   output$count_data = renderGvis({
     #ggplot(data = filtered_oil2(), aes(x = Borough)) + geom_bar(aes(fill = Building.Type))
     

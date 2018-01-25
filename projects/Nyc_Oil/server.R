@@ -17,9 +17,10 @@ library(leaflet)
 # Establishing data points and map spatial data
 
 counties = readOGR("nycbb.shp", layer = "nycbb") #nyc boroughs map
+district = readOGR("nycc.shp", layer = "nycc")#nyc council district map
 oil2 = read.csv('clean_oil.csv') #load in data
 # nyc_base = ggplot() + geom_polygon(data = counties, aes(x=long, y=lat, group = group)) 
-
+district2 <- spTransform(district, CRS("+proj=longlat +datum=WGS84")) #transform coodtype to Lat Lng
 
 
 shinyServer(function(input, output) {
@@ -53,11 +54,21 @@ shinyServer(function(input, output) {
            "Brooklyn" = 3,
            "Queens" = 4,
            "Staten Island" = 1)
-  }) 
+  })
+  
+  map_location = reactive({
+    switch(input$boro,
+           "All" = c(40.69, -73.8, 11),
+           "Manhattan" = c(40.7831, -73.9712, 12),
+           "Bronx" = c(40.8448, -73.8648, 12),
+           "Brooklyn" = c(40.6782, -73.9442, 12),
+           "Queens" = c(40.7, -73.7949, 12),
+           "Staten Island" = c(40.5795, -74.1502, 12))
+  })
 
 
     
-  filtered_oil2 = reactive({ 
+  filtered_oil2 = reactive({
     oil2 %>%
       filter(., Borough %in% boro_select()) %>%
       filter(., Retirement >= input$year[1] & Retirement <= input$year[2]) %>%
@@ -78,10 +89,7 @@ shinyServer(function(input, output) {
     
     leaflet(oil2) %>%
       addTiles(urlTemplate = 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_nolabels/{z}/{x}/{y}.png') %>%
-      addCircles(color = 'red')%>%
-      addPolygons(data = counties)
-    #%>%#borough shape data from NYC open data
-      #setView(lat = 40.69, lng = -73.8, zoom = 11) don't know it turns off auto zoom
+      addCircles(color = 'red') 
     
   })
   
@@ -91,20 +99,24 @@ shinyServer(function(input, output) {
     leafletProxy('map', data = filtered_oil2()) %>%
       clearShapes() %>%
       addCircles(color = 'red') %>%
-      addPolygons(data = counties[map_select(),])
+      addPolylines(data = counties[map_select(),]) %>%
+      setView(lat = map_location()[1], lng = map_location()[2], zoom = map_location()[3])
+      #addPolylines(data = district2) #leave this out for now. #later add option to toggle districts off and on
   })
   
+  
   output$count_data = renderGvis({
-    #ggplot(data = filtered_oil2(), aes(x = Borough)) + geom_bar(aes(fill = Building.Type))
-    
-    borough = filtered_oil2()%>%
+    borough = oil2%>%
       group_by(., Borough) %>%
       summarize(., cnt = n()) %>%
       as.data.frame
     
     gvisColumnChart(borough, options = list(width = 400, height=300))
-    
+   
   })
+  
+  
+
   output$Btype = renderGvis({
     
     buildingT = filtered_oil2()%>%

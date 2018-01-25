@@ -26,6 +26,9 @@ ui = bootstrapPage(
                 selectInput('boro',
                             'Select Borogh',
                             choice = c('All', 'Bronx', 'Brooklyn', 'Manhattan', 'Queens', 'Staten Island'))
-  )
+  ),
+  absolutePanel(top = 10, right = 10,
+                htmlOutput('count_data'),
+                htmlOutput('Btype'))
 )
 

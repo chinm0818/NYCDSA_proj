@@ -13,7 +13,7 @@ library(leaflet)
 
 ui = bootstrapPage(
   tags$style(type = 'text/css', 'html, body {width:100%; height100%}'),
-  leafletOutput('map', width = '100%', height = '1000'),
+  plotOutput('map', width = '800px', height = '400px'),
   absolutePanel(top = 10, left = 10,
                 sliderInput('year',
                             label = 'Year Range',
@@ -28,7 +28,7 @@ ui = bootstrapPage(
                             choice = c('All', 'Bronx', 'Brooklyn', 'Manhattan', 'Queens', 'Staten Island'))
   ),
   absolutePanel(top = 10, right = 10,
-                htmlOutput('count_data'),
                 htmlOutput('Btype'))
+                #htmlOutput('count_data'))
 )
 

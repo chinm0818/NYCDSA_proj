@@ -41,9 +41,9 @@ shinyUI(dashboardPage(
   dashboardBody(
     tabItems(
       tabItem(tabName = 'map',
-              leafletOutput('map', width = '800', height = '800'),
-              textOutput('take_away'),
-              absolutePanel(bottom = 10, right = 10, htmlOutput('Btype'))
+              leafletOutput('map', width = '100%', height = '900'),
+              absolutePanel(top = 100, right = 100, width = 400, h1(textOutput('take_away'))),
+              absolutePanel(bottom = 40, right = 40, htmlOutput('Btype'))
               
       ),#End tabItem(map)
       tabItem(tabName = 'data',
